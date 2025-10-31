@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NEON_DATABASE_URL")
+}
+
+// User model for both students and admins
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  role      UserRole   @default(STUDENT)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Student-specific fields
+  studentProfile StudentProfile?
+  applications   Application[]
+  recommendations Recommendation[]
+
+  // Admin-specific fields
+  managedUniversities University[] @relation("AdminManaged")
+
+  @@index([email])
+  @@index([role])
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+// Student Profile
+model StudentProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Academic Information
+  gpa               Float?
+  satScore          Int?
+  actScore          Int?
+  toeflScore        Int?
+  ieltsScore        Float?
+  
+  // Personal Information
+  country           String?
+  state             String?
+  highSchool        String?
+  graduationYear    Int?
+
+  preferredStudyCountry String?
+  budgetMin         Float?
+  budgetMax         Float?
+  
+  // Interests
+  majorInterests    String[]
+  careerGoals       String?
+  
+  // Financial
+  needsFinancialAid Boolean @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// University Model
+model University {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  country           String
+  state             String?
+  city              String
+  
+  // Academic Information
+  acceptanceRate    Float?
+  averageGPA        Float?
+  averageSAT        Int?
+  averageACT        Int?
+  
+  // Program Information
+  programs          Program[]
+  
+  // Rankings
+  worldRanking      Int?
+  nationalRanking   Int?
+  
+  // Financial
+  tuitionFee        Float?
+  averageAid        Float?
+  
+  // Admin Management
+  adminId           String?
+  admin             User?    @relation("AdminManaged", fields: [adminId], references: [id])
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([name])
+  @@index([country])
+  @@index([adminId])
+}
+
+// Program Model
+model Program {
+  id                String   @id @default(cuid())
+  universityId      String
+  university        University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  
+  name              String
+  degree            String   // Bachelor, Master, PhD
+  field             String   // Computer Science, Business, etc.
+  duration          Int      // in years
+  
+  // Requirements
+  minGPA            Float?
+  minSAT            Int?
+  minACT            Int?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([universityId, name, degree])
+  @@index([universityId])
+}
+
+// Application Model
+model Application {
+  id                String   @id @default(cuid())
+  studentId         String
+  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  universityName    String
+  programName       String
+  degree            String
+  
+  status            ApplicationStatus @default(DRAFT)
+  
+  // Application Details
+  essayTopic        String?
+  essayContent      String?
+  
+  // Dates
+  applicationDate   DateTime?
+  deadline          DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([status])
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+}
+
+// Recommendation Model
+model Recommendation {
+  id                String   @id @default(cuid())
+  studentId         String
+  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  universityName    String
+  recommendedPrograms String[]
+  matchScore        Float    // 0-100 score
+  
+  reasoning         String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([studentId])
+}
+
+// Chat History for AI Assistant
+model ChatMessage {
+  id                String   @id @default(cuid())
+  studentId         String?
+  
+  role              String   // "user" or "assistant"
+  content           String
+  
+  createdAt         DateTime @default(now())
+
+  @@index([studentId])
+  @@index([createdAt])
+}

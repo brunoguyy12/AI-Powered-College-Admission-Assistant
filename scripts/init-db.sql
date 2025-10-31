@@ -1,0 +1,2 @@
+-- Create tables using Prisma (this is for reference)
+-- Run: npx prisma migrate dev --name init
