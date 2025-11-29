@@ -12,16 +12,16 @@ datasource db {
 
 // User model for both students and admins
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
   name      String?
-  role      UserRole   @default(STUDENT)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Student-specific fields
-  studentProfile StudentProfile?
-  applications   Application[]
+  studentProfile  StudentProfile?
+  applications    Application[]
   recommendations Recommendation[]
 
   // Admin-specific fields
@@ -38,71 +38,80 @@ enum UserRole {
 
 // Student Profile
 model StudentProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Academic Information
-  gpa               Float?
-  satScore          Int?
-  actScore          Int?
-  toeflScore        Int?
-  ieltsScore        Float?
-  
+  gpa        Float?
+  satScore   Int?
+  actScore   Int?
+  toeflScore Int?
+  ieltsScore Float?
+
   // Personal Information
-  country           String?
-  state             String?
-  highSchool        String?
-  graduationYear    Int?
+  country        String?
+  state          String?
+  highSchool     String?
+  graduationYear Int?
 
   preferredStudyCountry String?
-  budgetMin         Float?
-  budgetMax         Float?
-  
+  budgetMin             Float?
+  budgetMax             Float?
+
   // Interests
-  majorInterests    String[]
-  careerGoals       String?
-  
+  majorInterests String[]
+  careerGoals    String?
+
   // Financial
   needsFinancialAid Boolean @default(false)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 // University Model
 model University {
-  id                String   @id @default(cuid())
-  name              String   @unique
-  country           String
-  state             String?
-  city              String
-  
+  id      String  @id @default(cuid())
+  name    String  @unique
+  country String
+  state   String?
+  city    String
+
+  location   String? // "New York, USA" format
+  adminEmail String? // Admin contact email (not visible to students)
+  adminPhone String? // Admin contact phone (not visible to students)
+  websiteUrl String? // University website
+
+  documentsNeeded     String[] // ["Passport", "Transcript", "Birth Certificate"]
+  applicationFee      Float? // Application fee in USD
+  requirementsSummary String? // Brief summary of requirements
+
   // Academic Information
-  acceptanceRate    Float?
-  averageGPA        Float?
-  averageSAT        Int?
-  averageACT        Int?
-  
+  acceptanceRate Float?
+  averageGPA     Float?
+  averageSAT     Int?
+  averageACT     Int?
+
   // Program Information
-  programs          Program[]
-  
+  programs Program[]
+
   // Rankings
-  worldRanking      Int?
-  nationalRanking   Int?
-  
+  worldRanking    Int?
+  nationalRanking Int?
+
   // Financial
-  tuitionFee        Float?
-  averageAid        Float?
-  
+  tuitionFee Float?
+  averageAid Float?
+
   // Admin Management
-  adminId           String?
-  admin             User?    @relation("AdminManaged", fields: [adminId], references: [id])
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  adminId String?
+  admin   User?   @relation("AdminManaged", fields: [adminId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([name])
   @@index([country])
@@ -111,22 +120,22 @@ model University {
 
 // Program Model
 model Program {
-  id                String   @id @default(cuid())
-  universityId      String
-  university        University @relation(fields: [universityId], references: [id], onDelete: Cascade)
-  
-  name              String
-  degree            String   // Bachelor, Master, PhD
-  field             String   // Computer Science, Business, etc.
-  duration          Int      // in years
-  
+  id           String     @id @default(cuid())
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  name     String
+  degree   String // Bachelor, Master, PhD
+  field    String // Computer Science, Business, etc.
+  duration Int // in years
+
   // Requirements
-  minGPA            Float?
-  minSAT            Int?
-  minACT            Int?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  minGPA Float?
+  minSAT Int?
+  minACT Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([universityId, name, degree])
   @@index([universityId])
@@ -134,26 +143,26 @@ model Program {
 
 // Application Model
 model Application {
-  id                String   @id @default(cuid())
-  studentId         String
-  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  universityName    String
-  programName       String
-  degree            String
-  
-  status            ApplicationStatus @default(DRAFT)
-  
+  id        String @id @default(cuid())
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  universityName String
+  programName    String
+  degree         String
+
+  status ApplicationStatus @default(DRAFT)
+
   // Application Details
-  essayTopic        String?
-  essayContent      String?
-  
+  essayTopic   String?
+  essayContent String?
+
   // Dates
-  applicationDate   DateTime?
-  deadline          DateTime?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  applicationDate DateTime?
+  deadline        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studentId])
   @@index([status])
@@ -170,31 +179,31 @@ enum ApplicationStatus {
 
 // Recommendation Model
 model Recommendation {
-  id                String   @id @default(cuid())
-  studentId         String
-  student           User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  universityName    String
+  id        String @id @default(cuid())
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  universityName      String
   recommendedPrograms String[]
-  matchScore        Float    // 0-100 score
-  
-  reasoning         String?
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  matchScore          Float // 0-100 score
+
+  reasoning String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studentId])
 }
 
 // Chat History for AI Assistant
 model ChatMessage {
-  id                String   @id @default(cuid())
-  studentId         String?
-  
-  role              String   // "user" or "assistant"
-  content           String
-  
-  createdAt         DateTime @default(now())
+  id        String  @id @default(cuid())
+  studentId String?
+
+  role    String // "user" or "assistant"
+  content String
+
+  createdAt DateTime @default(now())
 
   @@index([studentId])
   @@index([createdAt])
