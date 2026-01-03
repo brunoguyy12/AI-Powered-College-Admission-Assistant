@@ -11,7 +11,16 @@ export default async function UniversityDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const user = await getAuthUser();
+  const authUser = await getAuthUser();
+  if (!authUser) {
+    redirect("/sign-in");
+  }
+
+  // Fetch the full user object with createdAt and updatedAt
+  const user = await prisma.user.findUnique({
+    where: { id: authUser.id },
+  });
+
   if (!user) {
     redirect("/sign-in");
   }
@@ -45,7 +54,7 @@ export default async function UniversityDetailPage({
       </div>
 
       {/* <UniversityDetailClient university={university} user={user} /> */}
-      <UniversityDetailClient university={university} />
+      <UniversityDetailClient university={university} user={user} />
     </div>
   );
 }

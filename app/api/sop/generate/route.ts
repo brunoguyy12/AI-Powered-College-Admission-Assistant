@@ -1,29 +1,42 @@
-import { auth } from "@clerk/nextjs/server"
-import { prisma } from "@/lib/db"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
-import { NextResponse } from "next/server"
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { universityName, programName, topic } = await req.json()
+    const { universityName, programName, topic } = await req.json();
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { studentProfile: true },
-    })
+    });
 
     if (!user || !user.studentProfile) {
-      return NextResponse.json({ error: "Student profile not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Student profile not found" },
+        { status: 404 }
+      );
     }
 
-    const profile = user.studentProfile
+    const profile = user.studentProfile;
+    const apiKey = process.env.GOOGLE_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Google API key not configured" },
+        { status: 500 }
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `You are an expert in writing compelling Statements of Purpose (SOP) for college applications. Write a personalized SOP for a student applying to ${programName} at ${universityName}.
 
@@ -32,11 +45,17 @@ Student Profile:
 - GPA: ${profile.gpa || "Not provided"}
 - SAT Score: ${profile.satScore || "Not provided"}
 - ACT Score: ${profile.actScore || "Not provided"}
+- TOEFL Score: ${profile.toeflScore || "Not provided"}
+- IELTS Score: ${profile.ieltsScore || "Not provided"}
 - Major Interests: ${profile.majorInterests?.join(", ") || "Not provided"}
 - Career Goals: ${profile.careerGoals || "Not provided"}
 - Country: ${profile.country || "Not provided"}
+- Preferred Study Country: ${profile.preferredStudyCountry || "Not provided"}
 
-Topic/Prompt: ${topic || "Write about your academic journey and why you want to pursue this program"}
+Topic/Prompt: ${
+      topic ||
+      "Write about your academic journey and why you want to pursue this program"
+    }
 
 Write a compelling, authentic SOP that:
 1. Starts with a strong hook that captures attention
@@ -47,18 +66,18 @@ Write a compelling, authentic SOP that:
 6. Is approximately 500-700 words
 7. Uses first person and maintains a professional yet personal tone
 
-The SOP should be unique, memorable, and demonstrate genuine interest in the program.`
+The SOP should be unique, memorable, and demonstrate genuine interest in the program.`;
 
-    const { text } = await generateText({
-      model: openai("gpt-4o-mini"),
-      prompt,
-      temperature: 0.8,
-      maxOutputTokens: 2000,
-    })
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
 
-    return NextResponse.json({ sop: text })
+    return NextResponse.json({ sop: text });
   } catch (error) {
-    console.error("Error generating SOP:", error)
-    return NextResponse.json({ error: "Failed to generate SOP" }, { status: 500 })
+    console.error("Error generating SOP:", error);
+    return NextResponse.json(
+      { error: "Failed to generate SOP" },
+      { status: 500 }
+    );
   }
 }

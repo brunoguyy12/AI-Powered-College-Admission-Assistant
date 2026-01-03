@@ -151,11 +151,18 @@ model Application {
   programName    String
   degree         String
 
-  status ApplicationStatus @default(DRAFT)
+  statementOfPurpose String?
 
   // Application Details
   essayTopic   String?
   essayContent String?
+
+  additionalEssays String[] // Multiple essay responses
+
+  status ApplicationStatus @default(DRAFT)
+
+  adminNotes       String?
+  adminLastUpdated DateTime?
 
   // Dates
   applicationDate DateTime?

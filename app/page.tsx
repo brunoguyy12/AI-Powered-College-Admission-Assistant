@@ -1,7 +1,7 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { SignedIn, SignedOut } from "@clerk/nextjs"
-import { Navbar } from "@/components/navbar"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   return (
@@ -14,8 +14,9 @@ export default function Home() {
             Your AI-Powered College Admissions Guide
           </h1>
           <p className="mt-6 text-xl text-muted-foreground">
-            Get personalized university recommendations, craft compelling statements of purpose, and navigate your
-            college journey with AI assistance.
+            Get personalized university recommendations, craft compelling
+            statements of purpose, and navigate your college journey with AI
+            assistance.
           </p>
           <div className="mt-10 flex justify-center gap-4">
             <SignedOut>
@@ -29,7 +30,7 @@ export default function Home() {
               </Link>
             </SignedOut>
             <SignedIn>
-              <Link href="/dashboard/student">
+              <Link href="/dashboard">
                 <Button size="lg">Go to Dashboard</Button>
               </Link>
             </SignedIn>
@@ -41,7 +42,8 @@ export default function Home() {
             <div className="mb-4 text-3xl">🎯</div>
             <h3 className="text-lg font-semibold">Smart Recommendations</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Get AI-powered university recommendations based on your profile and goals.
+              Get AI-powered university recommendations based on your profile
+              and goals.
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-6">
@@ -68,32 +70,40 @@ export default function Home() {
                 1
               </div>
               <h3 className="font-semibold">Create Profile</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Add your academic information and goals</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Add your academic information and goals
+              </p>
             </div>
             <div className="text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 2
               </div>
               <h3 className="font-semibold">Get Recommendations</h3>
-              <p className="mt-2 text-sm text-muted-foreground">AI analyzes your profile and recommends universities</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                AI analyzes your profile and recommends universities
+              </p>
             </div>
             <div className="text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 3
               </div>
               <h3 className="font-semibold">Generate Essays</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Create personalized statements of purpose</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Create personalized statements of purpose
+              </p>
             </div>
             <div className="text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 4
               </div>
               <h3 className="font-semibold">Track Progress</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Manage applications and stay organized</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Manage applications and stay organized
+              </p>
             </div>
           </div>
         </div>
       </div>
     </main>
-  )
+  );
 }
