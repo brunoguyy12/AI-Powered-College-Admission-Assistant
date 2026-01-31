@@ -20,15 +20,24 @@ interface StudentProfileFormProps {
 export function StudentProfileForm({ studentProfile, userId }: StudentProfileFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<"undergrad" | "masters">(
+    studentProfile?.educationLevel === "masters" ? "masters" : "undergrad",
+  )
   const [formData, setFormData] = useState({
+    educationLevel: studentProfile?.educationLevel || "undergraduate",
     gpa: studentProfile?.gpa?.toString() || "",
     satScore: studentProfile?.satScore?.toString() || "",
     actScore: studentProfile?.actScore?.toString() || "",
+    greScore: studentProfile?.greScore?.toString() || "",
+    greQuantitative: studentProfile?.greQuantitative?.toString() || "",
+    greVerbal: studentProfile?.greVerbal?.toString() || "",
+    gmatScore: studentProfile?.gmatScore?.toString() || "",
     toeflScore: studentProfile?.toeflScore?.toString() || "",
     ieltsScore: studentProfile?.ieltsScore?.toString() || "",
     country: studentProfile?.country || "",
     state: studentProfile?.state || "",
     highSchool: studentProfile?.highSchool || "",
+    university: studentProfile?.university || "",
     graduationYear: studentProfile?.graduationYear?.toString() || "",
     preferredStudyCountry: studentProfile?.preferredStudyCountry || "",
     budgetMin: studentProfile?.budgetMin?.toString() || "",
@@ -38,7 +47,7 @@ export function StudentProfileForm({ studentProfile, userId }: StudentProfileFor
     needsFinancialAid: studentProfile?.needsFinancialAid || false,
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -60,6 +69,10 @@ export function StudentProfileForm({ studentProfile, userId }: StudentProfileFor
           gpa: formData.gpa ? Number.parseFloat(formData.gpa) : null,
           satScore: formData.satScore ? Number.parseInt(formData.satScore) : null,
           actScore: formData.actScore ? Number.parseInt(formData.actScore) : null,
+          greScore: formData.greScore ? Number.parseInt(formData.greScore) : null,
+          greQuantitative: formData.greQuantitative ? Number.parseInt(formData.greQuantitative) : null,
+          greVerbal: formData.greVerbal ? Number.parseInt(formData.greVerbal) : null,
+          gmatScore: formData.gmatScore ? Number.parseInt(formData.gmatScore) : null,
           toeflScore: formData.toeflScore ? Number.parseInt(formData.toeflScore) : null,
           ieltsScore: formData.ieltsScore ? Number.parseFloat(formData.ieltsScore) : null,
           graduationYear: formData.graduationYear ? Number.parseInt(formData.graduationYear) : null,
@@ -72,9 +85,7 @@ export function StudentProfileForm({ studentProfile, userId }: StudentProfileFor
       if (!response.ok) throw new Error("Failed to update profile")
 
       toast.success("Profile updated successfully!")
-      // router.refresh()
-      //Navigate back to the dashboard or previous page
-      router.push("/dashboard/student")
+      router.refresh()
     } catch (error) {
       toast.error("Failed to update profile")
       console.error(error)
@@ -87,155 +98,348 @@ export function StudentProfileForm({ studentProfile, userId }: StudentProfileFor
     <form onSubmit={handleSubmit} className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Academic Information</CardTitle>
-          <CardDescription>Your test scores and GPA</CardDescription>
+          <CardTitle>Education Level</CardTitle>
+          <CardDescription>What are you applying for?</CardDescription>
         </CardHeader>
         <CardContent>
-          <FieldSet>
-            <FieldGroup className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="gpa">GPA</FieldLabel>
-                  <Input
-                    id="gpa"
-                    name="gpa"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="4"
-                    placeholder="3.8"
-                    value={formData.gpa}
-                    onChange={handleChange}
-                  />
-                  <FieldDescription>On a 4.0 scale</FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="satScore">SAT Score</FieldLabel>
-                  <Input
-                    id="satScore"
-                    name="satScore"
-                    type="number"
-                    min="0"
-                    max="1600"
-                    placeholder="1500"
-                    value={formData.satScore}
-                    onChange={handleChange}
-                  />
-                  <FieldDescription>Out of 1600</FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="actScore">ACT Score</FieldLabel>
-                  <Input
-                    id="actScore"
-                    name="actScore"
-                    type="number"
-                    min="0"
-                    max="36"
-                    placeholder="34"
-                    value={formData.actScore}
-                    onChange={handleChange}
-                  />
-                  <FieldDescription>Out of 36</FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="toeflScore">TOEFL Score</FieldLabel>
-                  <Input
-                    id="toeflScore"
-                    name="toeflScore"
-                    type="number"
-                    min="0"
-                    max="120"
-                    placeholder="110"
-                    value={formData.toeflScore}
-                    onChange={handleChange}
-                  />
-                  <FieldDescription>Out of 120 (if applicable)</FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="ieltsScore">IELTS Score</FieldLabel>
-                  <Input
-                    id="ieltsScore"
-                    name="ieltsScore"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="9"
-                    placeholder="7.5"
-                    value={formData.ieltsScore}
-                    onChange={handleChange}
-                  />
-                  <FieldDescription>Out of 9 (if applicable)</FieldDescription>
-                </Field>
-              </div>
-            </FieldGroup>
-          </FieldSet>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="educationLevel"
+                  value="undergraduate"
+                  checked={formData.educationLevel === "undergraduate"}
+                  onChange={handleChange}
+                  className="h-4 w-4"
+                />
+                <span className="font-medium">Undergraduate</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="educationLevel"
+                  value="masters"
+                  checked={formData.educationLevel === "masters"}
+                  onChange={handleChange}
+                  className="h-4 w-4"
+                />
+                <span className="font-medium">Masters Degree</span>
+              </label>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-          <CardDescription>Your background and location</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FieldSet>
-            <FieldGroup className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="country">Country</FieldLabel>
-                  <Input
-                    id="country"
-                    name="country"
-                    placeholder="United States"
-                    value={formData.country}
-                    onChange={handleChange}
-                  />
-                </Field>
+      {formData.educationLevel === "undergraduate" ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Undergraduate Academic Information</CardTitle>
+              <CardDescription>Your test scores and GPA</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldSet>
+                <FieldGroup className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field>
+                      <FieldLabel htmlFor="gpa">GPA</FieldLabel>
+                      <Input
+                        id="gpa"
+                        name="gpa"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="4"
+                        placeholder="3.8"
+                        value={formData.gpa}
+                        onChange={handleChange}
+                      />
+                      <FieldDescription>On a 4.0 scale (optional)</FieldDescription>
+                    </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="state">State/Province</FieldLabel>
-                  <Input
-                    id="state"
-                    name="state"
-                    placeholder="California"
-                    value={formData.state}
-                    onChange={handleChange}
-                  />
-                </Field>
+                    <Field>
+                      <FieldLabel htmlFor="satScore">SAT Score</FieldLabel>
+                      <Input
+                        id="satScore"
+                        name="satScore"
+                        type="number"
+                        min="0"
+                        max="1600"
+                        placeholder="1500"
+                        value={formData.satScore}
+                        onChange={handleChange}
+                      />
+                      <FieldDescription>Out of 1600 (optional)</FieldDescription>
+                    </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="highSchool">High School</FieldLabel>
-                  <Input
-                    id="highSchool"
-                    name="highSchool"
-                    placeholder="Your High School Name"
-                    value={formData.highSchool}
-                    onChange={handleChange}
-                  />
-                </Field>
+                    <Field>
+                      <FieldLabel htmlFor="actScore">ACT Score</FieldLabel>
+                      <Input
+                        id="actScore"
+                        name="actScore"
+                        type="number"
+                        min="0"
+                        max="36"
+                        placeholder="34"
+                        value={formData.actScore}
+                        onChange={handleChange}
+                      />
+                      <FieldDescription>Out of 36 (optional)</FieldDescription>
+                    </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="graduationYear">Graduation Year</FieldLabel>
-                  <Input
-                    id="graduationYear"
-                    name="graduationYear"
-                    type="number"
-                    min="2020"
-                    max="2030"
-                    placeholder="2024"
-                    value={formData.graduationYear}
-                    onChange={handleChange}
-                  />
-                </Field>
-              </div>
-            </FieldGroup>
-          </FieldSet>
-        </CardContent>
-      </Card>
+                    <Field>
+                      <FieldLabel htmlFor="toeflScore">TOEFL Score</FieldLabel>
+                      <Input
+                        id="toeflScore"
+                        name="toeflScore"
+                        type="number"
+                        min="0"
+                        max="120"
+                        placeholder="110"
+                        value={formData.toeflScore}
+                        onChange={handleChange}
+                      />
+                      <FieldDescription>Out of 120 (if applicable)</FieldDescription>
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="ieltsScore">IELTS Score</FieldLabel>
+                      <Input
+                        id="ieltsScore"
+                        name="ieltsScore"
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="9"
+                        placeholder="7.5"
+                        value={formData.ieltsScore}
+                        onChange={handleChange}
+                      />
+                      <FieldDescription>Out of 9 (if applicable)</FieldDescription>
+                    </Field>
+                  </div>
+                </FieldGroup>
+              </FieldSet>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Your background and location</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldSet>
+                <FieldGroup className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field>
+                      <FieldLabel htmlFor="country">Country</FieldLabel>
+                      <Input
+                        id="country"
+                        name="country"
+                        placeholder="United States"
+                        value={formData.country}
+                        onChange={handleChange}
+                      />
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="state">State/Province</FieldLabel>
+                      <Input
+                        id="state"
+                        name="state"
+                        placeholder="California"
+                        value={formData.state}
+                        onChange={handleChange}
+                      />
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="highSchool">High School</FieldLabel>
+                      <Input
+                        id="highSchool"
+                        name="highSchool"
+                        placeholder="Your High School Name"
+                        value={formData.highSchool}
+                        onChange={handleChange}
+                      />
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="graduationYear">Graduation Year</FieldLabel>
+                      <Input
+                        id="graduationYear"
+                        name="graduationYear"
+                        type="number"
+                        min="2020"
+                        max="2030"
+                        placeholder="2024"
+                        value={formData.graduationYear}
+                        onChange={handleChange}
+                      />
+                    </Field>
+                  </div>
+                </FieldGroup>
+              </FieldSet>
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Masters Academic Information</CardTitle>
+            <CardDescription>Your graduate test scores and academic background</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldSet>
+              <FieldGroup className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="gpa">Undergraduate GPA</FieldLabel>
+                    <Input
+                      id="gpa"
+                      name="gpa"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="4"
+                      placeholder="3.8"
+                      value={formData.gpa}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>On a 4.0 scale (optional)</FieldDescription>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="greScore">GRE Total Score</FieldLabel>
+                    <Input
+                      id="greScore"
+                      name="greScore"
+                      type="number"
+                      min="0"
+                      max="340"
+                      placeholder="320"
+                      value={formData.greScore}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>Out of 340 (optional)</FieldDescription>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="greQuantitative">GRE Quantitative</FieldLabel>
+                    <Input
+                      id="greQuantitative"
+                      name="greQuantitative"
+                      type="number"
+                      min="0"
+                      max="170"
+                      placeholder="170"
+                      value={formData.greQuantitative}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>Out of 170 (optional)</FieldDescription>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="greVerbal">GRE Verbal</FieldLabel>
+                    <Input
+                      id="greVerbal"
+                      name="greVerbal"
+                      type="number"
+                      min="0"
+                      max="170"
+                      placeholder="160"
+                      value={formData.greVerbal}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>Out of 170 (optional)</FieldDescription>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="gmatScore">GMAT Score</FieldLabel>
+                    <Input
+                      id="gmatScore"
+                      name="gmatScore"
+                      type="number"
+                      min="0"
+                      max="800"
+                      placeholder="750"
+                      value={formData.gmatScore}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>Out of 800 (for MBA/Business, optional)</FieldDescription>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="toeflScore">TOEFL Score</FieldLabel>
+                    <Input
+                      id="toeflScore"
+                      name="toeflScore"
+                      type="number"
+                      min="0"
+                      max="120"
+                      placeholder="110"
+                      value={formData.toeflScore}
+                      onChange={handleChange}
+                    />
+                    <FieldDescription>Out of 120 (if applicable)</FieldDescription>
+                  </Field>
+                </div>
+
+                <div className="space-y-4">
+                  <Field>
+                    <FieldLabel htmlFor="university">University (Undergrad)</FieldLabel>
+                    <Input
+                      id="university"
+                      name="university"
+                      placeholder="Your undergraduate university"
+                      value={formData.university}
+                      onChange={handleChange}
+                    />
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="country">Country</FieldLabel>
+                    <Input
+                      id="country"
+                      name="country"
+                      placeholder="United States"
+                      value={formData.country}
+                      onChange={handleChange}
+                    />
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="state">State/Province</FieldLabel>
+                    <Input
+                      id="state"
+                      name="state"
+                      placeholder="California"
+                      value={formData.state}
+                      onChange={handleChange}
+                    />
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="graduationYear">Graduation Year</FieldLabel>
+                    <Input
+                      id="graduationYear"
+                      name="graduationYear"
+                      type="number"
+                      min="2000"
+                      max="2030"
+                      placeholder="2022"
+                      value={formData.graduationYear}
+                      onChange={handleChange}
+                    />
+                  </Field>
+                </div>
+              </FieldGroup>
+            </FieldSet>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

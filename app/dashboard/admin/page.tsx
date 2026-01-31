@@ -89,7 +89,21 @@ export default async function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Application Management</CardTitle>
+              <CardDescription>Review and manage student applications</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/admin/applications" className="block">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  📋 View Applications
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>University Management</CardTitle>
@@ -99,11 +113,6 @@ export default async function AdminDashboard() {
               <Link href="/admin/universities" className="block">
                 <Button variant="outline" className="w-full justify-start bg-transparent">
                   📚 View Universities
-                </Button>
-              </Link>
-              <Link href="/admin/universities/add" className="block">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
-                  ➕ Add University
                 </Button>
               </Link>
             </CardContent>

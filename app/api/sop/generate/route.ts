@@ -66,7 +66,7 @@ Write a compelling, authentic SOP that:
 6. Is approximately 500-700 words
 7. Uses first person and maintains a professional yet personal tone
 
-The SOP should be unique, memorable, and demonstrate genuine interest in the program.`;
+The SOP should be unique, memorable, and demonstrate genuine interest in the program. The Response should be directly the SOP text without any additional commentary.`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
