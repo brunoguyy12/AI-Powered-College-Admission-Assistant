@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("NEON_DATABASE_URL")
+  // url      = env("NEON_DATABASE_URL")
 }
 
 // User model for both students and admins
@@ -26,6 +26,7 @@ model User {
 
   // Admin-specific fields
   managedUniversities University[] @relation("AdminManaged")
+  partnerships        Partnership[] @relation("AdminPartner")
 
   @@index([email])
   @@index([role])
@@ -221,3 +222,62 @@ model ChatMessage {
   @@index([studentId])
   @@index([createdAt])
 }
+
+// Notification Model
+model Notification {
+  id                String   @id @default(cuid())
+  userId            String   // Student or Admin ID
+  
+  type              String   // "APPLICATION_SUBMITTED", "STATUS_CHANGED", "PARTNERSHIP_REQUEST", etc.
+  title             String
+  message           String
+  
+  applicationId     String?  // Reference to application (if relevant)
+  partnershipId     String?  // Reference to partnership (if relevant)
+  
+  isRead            Boolean  @default(false)
+  actionUrl         String?  // URL to view details
+  
+  createdAt         DateTime @default(now())
+  readAt            DateTime?
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Partnership Request Model
+model Partnership {
+  id                String   @id @default(cuid())
+  
+  universityName    String
+  universityEmail   String
+  universityPhone   String?
+  contactPerson     String?
+  
+  adminId           String
+  admin             User     @relation("AdminPartner", fields: [adminId], references: [id], onDelete: Cascade)
+  
+  status            String   @default("DRAFT") // "DRAFT", "SENT", "ACCEPTED", "REJECTED", "NEGOTIATING"
+  
+  emailSubject      String?
+  emailContent      String   // Beautiful partnership proposal email
+  
+  requestDate       DateTime @default(now())
+  sentDate          DateTime?
+  responseDate      DateTime?
+  
+  responseMessage   String?  // University's response
+  
+  notes             String?  // Admin's internal notes
+  followUpDate      DateTime? // Scheduled follow-up
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([adminId])
+  @@index([status])
+}
+
+// Extend User model with partnership relation
+// Partnership is now related to User via adminId

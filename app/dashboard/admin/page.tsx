@@ -25,9 +25,10 @@ export default async function AdminDashboard() {
     prisma.university.count(),
     prisma.application.count(),
     prisma.recommendation.count(),
+    prisma.partnership.count(),
   ])
 
-  const [studentCount, universityCount, applicationCount, recommendationCount] = stats
+  const [studentCount, universityCount, applicationCount, recommendationCount, partnershipCount] = stats
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,6 +88,16 @@ export default async function AdminDashboard() {
               <p className="text-xs text-muted-foreground">Generated</p>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium">Partnerships</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{partnershipCount}</div>
+              <p className="text-xs text-muted-foreground">University requests</p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -132,6 +143,20 @@ export default async function AdminDashboard() {
               <Link href="/admin/analytics" className="block">
                 <Button variant="outline" className="w-full justify-start bg-transparent">
                   📊 Analytics
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>University Partnerships</CardTitle>
+              <CardDescription>Manage partnership requests and contracts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/admin/partnerships" className="block">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  🤝 Manage Partnerships
                 </Button>
               </Link>
             </CardContent>

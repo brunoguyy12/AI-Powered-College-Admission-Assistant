@@ -1,0 +1,2 @@
+-- This migration was already applied on another machine.
+-- This file exists only to restore Prisma migration history.

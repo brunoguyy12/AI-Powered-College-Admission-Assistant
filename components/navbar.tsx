@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
+import { NotificationsDropdown } from "./notifications-dropdown" 
 
 export function Navbar() {
   const pathname = usePathname()
@@ -42,6 +43,7 @@ export function Navbar() {
     { href: "/dashboard/admin", label: "Dashboard" },
     { href: "/admin/universities", label: "Universities" },
     { href: "/admin/applications", label: "Applications" },
+    { href: "/admin/partnerships", label: "Partnerships" },
     { href: "/admin/students", label: "Students" },
     { href: "/admin/analytics", label: "Analytics" },
   ]
@@ -86,6 +88,7 @@ export function Navbar() {
             </Link>
           </SignedOut>
           <SignedIn>
+            <NotificationsDropdown />
             <UserButton />
           </SignedIn>
         </div>

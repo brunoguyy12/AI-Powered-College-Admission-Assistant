@@ -1,45 +1,30 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import type { Application, User, StudentProfile } from "@prisma/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { FileText } from "lucide-react";
+import { useState } from "react"
+import Link from "next/link"
+import type { Application, User, StudentProfile } from "@prisma/client"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { FileText, ExternalLink } from "lucide-react"
 
 interface ApplicationWithStudent extends Application {
-  student: User & { studentProfile: StudentProfile | null };
+  student: User & { studentProfile: StudentProfile | null }
 }
 
 interface AdminApplicationsClientProps {
-  applications: ApplicationWithStudent[];
+  applications: ApplicationWithStudent[]
 }
 
-export function AdminApplicationsClient({
-  applications,
-}: AdminApplicationsClientProps) {
-  const [selectedApp, setSelectedApp] = useState<ApplicationWithStudent | null>(
-    null
-  );
-  const [adminNotes, setAdminNotes] = useState("");
-  const [newStatus, setNewStatus] = useState("");
-  const [isUpdating, setIsUpdating] = useState(false);
+export function AdminApplicationsClient({ applications }: AdminApplicationsClientProps) {
+  const [selectedApp, setSelectedApp] = useState<ApplicationWithStudent | null>(null)
+  const [adminNotes, setAdminNotes] = useState("")
+  const [newStatus, setNewStatus] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -49,14 +34,14 @@ export function AdminApplicationsClient({
       ACCEPTED: "bg-green-100 text-green-800",
       REJECTED: "bg-red-100 text-red-800",
       WAITLISTED: "bg-orange-100 text-orange-800",
-    };
-    return colors[status] || "bg-gray-100 text-gray-800";
-  };
+    }
+    return colors[status] || "bg-gray-100 text-gray-800"
+  }
 
   const handleUpdateApplication = async () => {
-    if (!selectedApp) return;
+    if (!selectedApp) return
 
-    setIsUpdating(true);
+    setIsUpdating(true)
     try {
       const response = await fetch("/api/admin/applications", {
         method: "PUT",
@@ -66,23 +51,23 @@ export function AdminApplicationsClient({
           status: newStatus || selectedApp.status,
           adminNotes,
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error("Failed to update application");
+      if (!response.ok) throw new Error("Failed to update application")
 
-      toast.success("Application updated successfully!");
-      setSelectedApp(null);
-      setAdminNotes("");
-      setNewStatus("");
+      toast.success("Application updated successfully!")
+      setSelectedApp(null)
+      setAdminNotes("")
+      setNewStatus("")
       // Refresh page or update state
-      window.location.reload();
+      window.location.reload()
     } catch (error) {
-      toast.error("Failed to update application");
-      console.error(error);
+      toast.error("Failed to update application")
+      console.error(error)
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -91,40 +76,28 @@ export function AdminApplicationsClient({
         <Card>
           <CardHeader>
             <CardTitle>Applications Queue</CardTitle>
-            <CardDescription>
-              {applications.length} total applications
-            </CardDescription>
+            <CardDescription>{applications.length} total applications</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {applications.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No applications yet
-                </p>
+                <p className="text-sm text-muted-foreground">No applications yet</p>
               ) : (
                 applications.map((app) => (
                   <div
                     key={app.id}
                     onClick={() => setSelectedApp(app)}
                     className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedApp?.id === app.id
-                        ? "bg-primary/10 border-primary"
-                        : "hover:border-primary/50"
+                      selectedApp?.id === app.id ? "bg-primary/10 border-primary" : "hover:border-primary/50"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <h4 className="font-semibold">{app.universityName}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {app.student.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {app.programName}
-                        </p>
+                        <p className="text-sm text-muted-foreground">{app.student.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{app.programName}</p>
                       </div>
-                      <Badge className={getStatusColor(app.status)}>
-                        {app.status}
-                      </Badge>
+                      <Badge className={getStatusColor(app.status)}>{app.status}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
                       Submitted: {app.createdAt.toLocaleDateString()}
@@ -146,30 +119,20 @@ export function AdminApplicationsClient({
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Name
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Name</p>
                 <p className="font-semibold">{selectedApp.student.name}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Email
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Email</p>
                 <p className="text-sm">{selectedApp.student.email}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">GPA</p>
-                <p className="font-semibold">
-                  {selectedApp.student.studentProfile?.gpa || "N/A"}
-                </p>
+                <p className="font-semibold">{selectedApp.student.studentProfile?.gpa || "N/A"}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Country
-                </p>
-                <p className="text-sm">
-                  {selectedApp.student.studentProfile?.country || "N/A"}
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Country</p>
+                <p className="text-sm">{selectedApp.student.studentProfile?.country || "N/A"}</p>
               </div>
             </CardContent>
           </Card>
@@ -181,10 +144,7 @@ export function AdminApplicationsClient({
             <CardContent className="space-y-4">
               <Field>
                 <FieldLabel htmlFor="status">Status</FieldLabel>
-                <Select
-                  value={newStatus || selectedApp.status}
-                  onValueChange={setNewStatus}
-                >
+                <Select value={newStatus || selectedApp.status} onValueChange={setNewStatus}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -211,13 +171,17 @@ export function AdminApplicationsClient({
                 />
               </Field>
 
-              <Button
-                onClick={handleUpdateApplication}
-                disabled={isUpdating}
-                className="w-full"
-              >
-                Update Application
-              </Button>
+              <div className="space-y-2">
+                <Button onClick={handleUpdateApplication} disabled={isUpdating} className="w-full">
+                  Update Application
+                </Button>
+                <Link href={`/admin/applications/${selectedApp.id}`} className="block">
+                  <Button variant="outline" className="w-full justify-between bg-transparent">
+                    View Full Details
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
 
@@ -240,5 +204,5 @@ export function AdminApplicationsClient({
         </div>
       )}
     </div>
-  );
+  )
 }
